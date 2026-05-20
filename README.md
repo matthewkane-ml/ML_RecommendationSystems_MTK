@@ -1,110 +1,114 @@
-# Data Science Project Boilerplate
+# FlikPik AI — AI Entertainment Discovery Platform
 
-This boilerplate is designed to kickstart data science projects by providing a basic setup for database connections, data processing, and machine learning model development. It includes a structured folder organization for your datasets and a set of pre-defined Python packages necessary for most data science tasks.
+> A hybrid recommendation engine that helps people decide what to watch next — combining collaborative filtering, AI-powered search, trending signals, and trailer integration in one app.
 
-## Structure
+**Live demo:** [flikpik-ai.onrender.com](https://flikpik-ai.onrender.com/)
 
-The project is organized as follows:
+---
 
-- **`src/app.py`** → Main Python script where your project will run.
-- **`src/explore.ipynb`** → Notebook for exploration and testing. Once exploration is complete, migrate the clean code to `app.py`.
-- **`src/utils.py`** → Auxiliary functions, such as database connection.
-- **`requirements.txt`** → List of required Python packages.
-- **`models/`** → Will contain your SQLAlchemy model classes.
-- **`data/`** → Stores datasets at different stages:
-  - **`data/raw/`** → Raw data.
-  - **`data/interim/`** → Temporarily transformed data.
-  - **`data/processed/`** → Data ready for analysis.
+## Problem
 
+Choosing what to watch is harder than it should be — recommendations are scattered across streaming services, and most recommenders rely on a single signal. FlikPik AI brings hybrid recommendations, semantic search, social/trending signals, trailers, and streaming availability into one place, so a user can go from "I don't know what to watch" to a confident pick in a couple of clicks.
 
-## ⚡ Initial Setup in Codespaces (Recommended)
+## My Role
 
-No manual setup is required, as **Codespaces is automatically configured** with the predefined files created by the academy for you. Just follow these steps:
+Built as a 4-person capstone project for the 4Geeks Academy Data Science & Machine Learning program. I served as **Data Engineer & Data Prep Lead**, responsible for:
 
-1. **Wait for the environment to configure automatically**.
-   - All necessary packages and the database will install themselves.
-   - The automatically created `username` and `db_name` are in the **`.env`** file at the root of the project.
-2. **Once Codespaces is ready, you can start working immediately**.
+- Designing and implementing the time-based train / validation / test split methodology to prevent data leakage
+- Constructing the sparse 610 × 9,724 user-item matrix (98.3% sparsity) that the modeling team built on
+- Data cleaning and exploratory data analysis on the MovieLens ratings dataset
+- Feature engineering (average rating, rating count, Bayesian popularity score, recency)
+- Validating referential integrity across all four source tables
+- Delivering six clean, validated output files to teammates and aligning on data schemas
 
+## Dataset
 
-## 💻 Local Setup (Only if you can't use Codespaces)
+- **Source:** [MovieLens 100K](https://grouplens.org/datasets/movielens/) — a standard ML research benchmark maintained by the University of Minnesota
+- **Size:** 100,836 ratings across 9,742 movies and 610 users
+- **Enrichment:** TMDB API integration for real-time movie metadata, posters, and trailers
+- **Key features:** user IDs, movie IDs, ratings (0.5–5.0), timestamps, one-hot encoded genres, plus TMDB-sourced metadata
 
-**Prerequisites**
+## Approach
 
-Make sure you have Python 3.11+ installed on your machine. You will also need pip to install the Python packages.
+The pipeline runs from raw ratings through to a deployed app:
 
-**Installation**
+1. **Data cleaning & EDA** — handled missing values, verified zero duplicates, validated referential integrity across all tables, converted Unix timestamps to datetime, and one-hot encoded pipe-separated genre strings into 20 binary columns.
+2. **Feature engineering** — built average rating, rating count, Bayesian popularity score (balancing quality against sample size), and recency features per movie. Also computed user-level rating stats.
+3. **Train/validation/test split** — time-based 80/10/10 split sorted by timestamp so the model trains on historical ratings and evaluates on future ones, preventing data leakage.
+4. **Sparse matrix construction** — built a 610 × 9,724 user-item matrix with 98.3% sparsity, stored as a CSR sparse matrix for memory efficiency.
+5. **Modeling** — hybrid recommender combining item-item collaborative filtering (CF), matrix factorization via TruncatedSVD (50 latent factors), genre-based content filtering, and a popularity baseline. Weighted ensemble: CF 30%, MF 45%, Genre 15%, Popularity 10%.
+6. **Deployment** — packaged with a Streamlit interface and deployed live on Render.
 
-Clone the project repository to your local machine.
+## Results
 
-Navigate to the project directory and install the required Python packages:
+The deployed app returns personalized hybrid recommendations, AI-powered natural language search results, trending titles, and trailers for any title in the catalog. The matrix factorization component (45% weight in the ensemble) contributed the strongest individual signal, consistently outperforming the popularity-only baseline on held-out test ratings. The live app handles end-to-end recommendation requests in real time with the full recommender system online.
+
+## Features
+
+**Discovery**
+- Hybrid recommendation engine (CF + MF + Genre + Popularity)
+- AI-powered semantic search ("Ask FlikPik")
+- Similar movie finder
+- Actor / Director search
+
+**Social & Trending**
+- Trending intelligence — what's popular this week
+- Social buzz signals
+
+**Rich Media**
+- Real movie posters and trailers via TMDB
+- Streaming availability (Netflix, Disney+, Hulu, and more)
+
+**Personalization**
+- Personalized taste insights
+- User rating system
+
+## Tech Stack
+
+`Python` · `pandas` · `NumPy` · `scikit-learn` · `SciPy (sparse matrices)` · `Streamlit` · `TMDB API` · `Render` · `Git`
+
+## Run It Locally
 
 ```bash
+git clone https://github.com/matthewkane-ml/ML_RecommendationSystems_MTK.git
+cd ML_RecommendationSystems_MTK
 pip install -r requirements.txt
 ```
 
-**Create a database (if necessary)**
+FlikPik AI needs a TMDB API key to fetch posters and metadata. Get a free key at [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api), then create a `.env` file in the project root:
 
-Create a new database within the Postgres engine by customizing and executing the following command:
+```
+TMDB_API_KEY=your_key_here
+```
 
 ```bash
-$ psql -U postgres -c "DO \$\$ BEGIN 
-    CREATE USER my_user WITH PASSWORD 'my_password'; 
-    CREATE DATABASE my_database OWNER my_user; 
-END \$\$;"
-```
-Connect to the Postgres engine to use your database, manipulate tables, and data:
-
-```bash
-$ psql -U my_user -d my_database
+streamlit run app.py
 ```
 
-Once inside PSQL, you can create tables, run queries, insert, update, or delete data, and much more!
+## Screenshots
 
-**Environment Variables**
+<!-- Add screenshots to a /screenshots folder in the repo, then update these paths -->
+![FlikPik AI home page with trending titles](screenshots/home.png)
+![Personalized recommendations](screenshots/recommendations.png)
 
-Create a .env file in the root directory of the project to store your environment variables, such as your database connection string:
+## What I'd Do Next
 
-```makefile
-DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DB_NAME>"
+- **Scale the dataset** — upgrade from MovieLens 100K to the full MovieLens 25M dataset for richer, more personalized recommendations with significantly reduced sparsity.
+- **Polish the frontend** — tighten the UI, fix any rendering issues (a few score cards were displaying raw HTML in testing), and improve mobile responsiveness.
+- **Add cold-start handling** — build a proper onboarding flow where new users rate a handful of movies before receiving personalized recommendations, rather than falling back to the popularity baseline.
+- **Cache TMDB responses** — reduce external API calls and improve load times by caching poster and metadata responses locally.
 
-#example
-DATABASE_URL="postgresql://my_user:my_password@localhost:5432/my_database"
-```
+## Team
 
-## Running the Application
+A 4-person 4Geeks Academy capstone project.
 
-To run the application, execute the app.py script from the root directory of the project:
+| Name | GitHub |
+|------|--------|
+| Matthew Kane | [matthewkane-ml](https://github.com/matthewkane-ml) |
+| Tomeka L. German | [tomekagerman](https://github.com/tomekagerman) |
+| Vishal Desai | [vdd11](https://github.com/vdd11) |
+| Brandon Henry | — |
 
-```bash
-python src/app.py
-```
+---
 
-## Adding Models
-
-To add SQLAlchemy model classes, create new Python script files within the models/ directory. These classes should be defined according to your database schema.
-
-Example model definition (`models/example_model.py`):
-
-```py
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
-
-Base = declarative_base()
-
-class ExampleModel(Base):
-    __tablename__ = 'example_table'
-    id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
-```
-
-## Working with Data
-
-You can place your raw datasets in the data/raw directory, intermediate datasets in data/interim, and processed datasets ready for analysis in data/processed.
-
-To process data, you can modify the app.py script to include your data processing steps, using pandas for data manipulation and analysis.
-
-## Contributors
-
-This project is maintained by [matthewkane-ml](https://github.com/matthewkane-ml).
+**Author:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-kane-392094410/) · [GitHub](https://github.com/matthewkane-ml)

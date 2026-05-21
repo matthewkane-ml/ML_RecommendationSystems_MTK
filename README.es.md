@@ -111,4 +111,4 @@ Proyecto final de 4 personas de 4Geeks Academy.
 
 ---
 
-**Autor:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-kane-392094410/) · [GitHub](https://github.com/matthewkane-ml)
+**Autor:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-k-392094410/) · [GitHub](https://github.com/matthewkane-ml)

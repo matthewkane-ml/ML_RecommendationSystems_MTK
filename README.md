@@ -87,9 +87,9 @@ streamlit run app.py
 
 ## Screenshots
 
-<!-- Add screenshots to a /screenshots folder in the repo, then update these paths -->
-![FlikPik AI home page with trending titles](screenshots/home.png)
+![FlikPik AI home page with trending titles](screenshots/home_trending.png)
 ![Personalized recommendations](screenshots/recommendations.png)
+![Actor / Director discovery — Tarantino filmography](screenshots/actor_director.png)
 
 ## What I'd Do Next
 
@@ -111,4 +111,4 @@ A 4-person 4Geeks Academy capstone project.
 
 ---
 
-**Author:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-kane-392094410/) · [GitHub](https://github.com/matthewkane-ml)
+**Author:** Matthew Kane — [LinkedIn](https://www.linkedin.com/in/thomas-k-392094410/) · [GitHub](https://github.com/matthewkane-ml)
